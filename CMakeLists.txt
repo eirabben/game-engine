@@ -6,12 +6,12 @@ project(GameEngine)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
+# Set directory for the source
+set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
+
 # Include GLFW
 #add_subdirectory(${CMAKE_SOURCE_DIR}/deps/glfw)
 #include_directories(${CMAKE_SOURCE_DIR}/deps/glfw/include)
 
-add_executable(GameEngine main.cpp)
+add_subdirectory(src)
 
-#target_link_libraries(GameEngine glfw ${GLFW_LIBRARIES})
-
-install(TARGETS GameEngine RUNTIME DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
