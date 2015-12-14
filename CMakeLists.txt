@@ -9,9 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 # Set directory for the source
 set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-# Include GLFW
-#add_subdirectory(${CMAKE_SOURCE_DIR}/deps/glfw)
-#include_directories(${CMAKE_SOURCE_DIR}/deps/glfw/include)
+# Add custom find module
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
 add_subdirectory(src)
-
