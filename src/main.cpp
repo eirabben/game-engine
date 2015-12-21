@@ -1,8 +1,8 @@
-#include <iostream>
+#include "Game.hpp"
 
-#include <GLFW/glfw3.h>
+int main(int argc, char* args[]) {
+    Game game;
+    game.run();
 
-int main(void)
-{
     return 0;
 }

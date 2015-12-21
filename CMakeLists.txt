@@ -6,10 +6,24 @@ project(GameEngine)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/)
+
 # Set directory for the source
 set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
-# Add custom find module
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
+# Include SDL2
+find_package(SDL2 REQUIRED)
+if(SDL2_FOUND)
+    include_directories(${SDL2_INCLUDE_DIR})
+    link_libraries(${SDL2_LIBRARIES})
+endif()
 
+# Include OpenGL
+find_package(OpenGL REQUIRED)
+if (OPENGL_FOUND)
+    include_directories(${OPENGL_INCLUDE_DIR})
+    link_libraries(${OPENGL_LIBRARY})
+endif()
+
+# Add our source code directory
 add_subdirectory(src)
