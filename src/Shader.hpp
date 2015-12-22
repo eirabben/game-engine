@@ -1,6 +1,6 @@
 #pragma once
 
-#include <OpenGL/gl.h>
+#include <OpenGL/gl3.h>
 #include <string>
 
 class Shader {

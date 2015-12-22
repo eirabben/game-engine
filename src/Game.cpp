@@ -25,16 +25,44 @@ void Game::run() {
 void Game::prepare() {
     m_shader.compileShaders("Shaders/simple.vert", "Shaders/simple.frag");
     
-    float vertices[] = {
-         0.0f,  0.5f, // v1 (x,y)
-         0.5f, -0.5f, // v2 (x,y)
-        -0.5f, -0.5f  // v3 (x,y)
+//    GLfloat vertices[] = {
+//        -0.5f, -0.5f, 0.0f,
+//         0.5f, -0.5f, 0.0f,
+//         0.0f,  0.5f, 0.0f
+//    };
+    
+    GLfloat vertices[] = {
+         0.5f,  0.5f, 0.0f,  // Top Right
+         0.5f, -0.5f, 0.0f,  // Bottom Right
+        -0.5f, -0.5f, 0.0f,  // Bottom Left
+        -0.5f,  0.5f, 0.0f   // Top Left
     };
     
-    GLuint vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    GLuint indices[] = {  // Note that we start from 0!
+        0, 1, 3,  // First Triangle
+        1, 2, 3   // Second Triangle
+    };
+    
+    glGenVertexArrays(1, &m_vao);
+    glGenBuffers(1, &m_vbo);
+    glGenBuffers(1, &m_ebo);
+    
+    glBindVertexArray(m_vao);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
+    glBindVertexArray(0);
+    
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void Game::init() {
@@ -49,7 +77,7 @@ void Game::init() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     
     // Create the window
-    m_window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    m_window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_windowWidth, m_windowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (m_window == nullptr) {
         std::cout << "Window could not be created: " << SDL_GetError() << "\n";
     }
@@ -59,9 +87,15 @@ void Game::init() {
     if (m_context == NULL) {
         std::cout << "Could not create context: " << SDL_GetError() << "\n";
     }
+    
+    glViewport(0, 0, m_windowWidth, m_windowHeight);
 }
 
 void Game::destroy() {
+    glDeleteVertexArrays(1, &m_vao);
+    glDeleteBuffers(1, &m_vbo);
+    glDeleteBuffers(1, &m_ebo);
+    
     SDL_GL_DeleteContext(m_context);
     SDL_DestroyWindow(m_window);
     m_window = nullptr;
@@ -87,5 +121,20 @@ void Game::update() {
 void Game::draw() {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    
+    m_shader.use();
+    glBindVertexArray(m_vao);
+    
+    // Draw stuff
+//    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    
+    glBindVertexArray(0);
+    
+    glUseProgram(0);
+    
     SDL_GL_SwapWindow(m_window);
 }
+
+
+
