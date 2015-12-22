@@ -1,9 +1,8 @@
 #include "Shader.hpp"
 
-#include <string>
 #include <fstream>
-#include <sstream>
 #include <iostream>
+#include <sstream>
 
 Shader::Shader() {
     
@@ -18,17 +17,23 @@ void Shader::compileShaders(const std::string& vertexShaderPath, const std::stri
     std::string vertexShaderSource = loadSourceFromFile(vertexShaderPath);
     std::string fragmentShaderSource = loadSourceFromFile(fragmentShaderPath);
     
-    GLuint vertexShader;
-    GLuint fragmentShader;
+    GLuint vertexShader = 0;
+    GLuint fragmentShader = 0;
     
-    // Compile shaders
+    // Create and compile shaders
     
     // Vertex shader
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    if (vertexShader == 0) {
+        std::cout << "Could not create vertex shader\n";
+    }
     compileShader(vertexShader, vertexShaderSource.c_str());
     
     // Fragment shader
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    if (fragmentShader == 0) {
+        std::cout << "Could not create fragment shader\n";
+    }
     compileShader(fragmentShader, fragmentShaderSource.c_str());
     
     // Shader program
@@ -47,11 +52,13 @@ void Shader::compileShader(GLuint shaderID, const GLchar* shaderSource) {
     
     // Check for errors
     GLint success;
-    GLchar infoLog[512];
+    GLchar infoLog[GL_INFO_LOG_LENGTH];
     glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
     if (!success) {
-        glGetShaderInfoLog(shaderID, 512, NULL, infoLog);
+        glGetShaderInfoLog(shaderID, GL_INFO_LOG_LENGTH, NULL, infoLog);
         std::cout << "Could not compile shader\n" << infoLog << "\n";
+        
+        glDeleteShader(shaderID);
     }
 }
 
@@ -68,10 +75,10 @@ void Shader::linkShaders(GLuint vertexShaderID, GLuint fragmentShaderID) {
     
     // Check for errors
     GLint success;
-    GLchar infoLog[512];
+    GLchar infoLog[GL_INFO_LOG_LENGTH];
     glGetProgramiv(m_program, GL_LINK_STATUS, &success);
     if (!success) {
-        glGetProgramInfoLog(m_program, 512, NULL, infoLog);
+        glGetProgramInfoLog(m_program, GL_INFO_LOG_LENGTH, NULL, infoLog);
         std::cout << "Could not link program\n" << infoLog << "\n";
     }
 }
