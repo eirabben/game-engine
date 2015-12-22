@@ -29,7 +29,6 @@ private:
     
     GLuint m_vao;
     GLuint m_vbo;
-    GLuint m_ebo;
     
     const int m_windowWidth = 800;
     const int m_windowHeight = 600;

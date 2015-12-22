@@ -25,35 +25,19 @@ void Game::run() {
 void Game::prepare() {
     m_shader.compileShaders("Shaders/simple.vert", "Shaders/simple.frag");
     
-//    GLfloat vertices[] = {
-//        -0.5f, -0.5f, 0.0f,
-//         0.5f, -0.5f, 0.0f,
-//         0.0f,  0.5f, 0.0f
-//    };
-    
     GLfloat vertices[] = {
-         0.5f,  0.5f, 0.0f,  // Top Right
-         0.5f, -0.5f, 0.0f,  // Bottom Right
-        -0.5f, -0.5f, 0.0f,  // Bottom Left
-        -0.5f,  0.5f, 0.0f   // Top Left
-    };
-    
-    GLuint indices[] = {  // Note that we start from 0!
-        0, 1, 3,  // First Triangle
-        1, 2, 3   // Second Triangle
+        -0.5f, -0.5f, 0.0f,
+         0.5f, -0.5f, 0.0f,
+         0.0f,  0.5f, 0.0f
     };
     
     glGenVertexArrays(1, &m_vao);
     glGenBuffers(1, &m_vbo);
-    glGenBuffers(1, &m_ebo);
     
     glBindVertexArray(m_vao);
     
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
@@ -62,7 +46,7 @@ void Game::prepare() {
     
     glBindVertexArray(0);
     
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void Game::init() {
@@ -89,12 +73,20 @@ void Game::init() {
     }
     
     glViewport(0, 0, m_windowWidth, m_windowHeight);
+    
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    const GLubyte* version = glGetString(GL_VERSION);
+    std::cout << "Renderer: " << renderer << "\n";
+    std::cout << "OpenGL version supported: " << version << "\n";
+    
+//    glEnable(GL_DEPTH_TEST); // enable depth-testing
+//    glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+    
 }
 
 void Game::destroy() {
     glDeleteVertexArrays(1, &m_vao);
     glDeleteBuffers(1, &m_vbo);
-    glDeleteBuffers(1, &m_ebo);
     
     SDL_GL_DeleteContext(m_context);
     SDL_DestroyWindow(m_window);
@@ -126,8 +118,7 @@ void Game::draw() {
     glBindVertexArray(m_vao);
     
     // Draw stuff
-//    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
     
     glBindVertexArray(0);
     
