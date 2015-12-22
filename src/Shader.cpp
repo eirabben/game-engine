@@ -13,7 +13,7 @@ Shader::~Shader() {
     
 }
 
-void Shader::compileShaders(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath) {
+void Shader::compileShaders(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) {
     // Retrieve the source code from the file paths
     std::string vertexShaderCode;
     std::string fragmentShaderCode;

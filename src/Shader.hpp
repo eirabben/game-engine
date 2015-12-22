@@ -9,7 +9,7 @@ public:
     Shader();
     ~Shader();
     
-    void compileShaders(const GLchar* vertexShaderPath, const GLchar* fragmentShaderPath);
+    void compileShaders(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 //    void compileShader(const GLchar* shaderSource, GLuint shaderID, const std::string& shaderName);
 //    void linkShaders();
 //    const GLchar* loadSourceFromFile(const std::string shaderPath);
