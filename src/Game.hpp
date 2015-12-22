@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Shader.hpp"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
@@ -21,5 +23,7 @@ public:
 private:
     SDL_Window* m_window = nullptr;
     SDL_GLContext m_context;
+    
+    Shader m_shader;
     
 };

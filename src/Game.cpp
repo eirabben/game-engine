@@ -1,5 +1,8 @@
 #include "Game.hpp"
 #include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
 
 Game::Game() {
     
@@ -20,6 +23,8 @@ void Game::run() {
 }
 
 void Game::prepare() {
+    m_shader.compileShaders("Shaders/simple.vert", "Shaders/simple.frag");
+    
     float vertices[] = {
          0.0f,  0.5f, // v1 (x,y)
          0.5f, -0.5f, // v2 (x,y)
@@ -80,5 +85,7 @@ void Game::update() {
 }
 
 void Game::draw() {
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     SDL_GL_SwapWindow(m_window);
 }
