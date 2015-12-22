@@ -54,25 +54,11 @@ void Shader::compileShaders(const std::string& vertexShaderPath, const std::stri
     
     // Vertex shader
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexCode, NULL);
-    glCompileShader(vertexShader);
-    // Check for errors
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "Could not compile vertex shader\n" << infoLog << "\n";
-    }
+    compileShader(vertexShader, vertexCode);
     
     // Fragment shader
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentCode, NULL);
-    glCompileShader(fragmentShader);
-    // Check for errors
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "Could not compile fragment shader\n" << infoLog << "\n";
-    }
+    compileShader(fragmentShader, fragmentCode);
     
     // Shader program
     m_program = glCreateProgram();
@@ -89,6 +75,21 @@ void Shader::compileShaders(const std::string& vertexShaderPath, const std::stri
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
     
+}
+
+void Shader::compileShader(GLuint shaderID, const GLchar* shaderSource) {
+    // Compile the shader
+    glShaderSource(shaderID, 1, &shaderSource, NULL);
+    glCompileShader(shaderID);
+    
+    // Check for errors
+    GLint success;
+    GLchar infoLog[512];
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        glGetShaderInfoLog(shaderID, 512, NULL, infoLog);
+        std::cout << "Could not compile shader\n" << infoLog << "\n";
+    }
 }
 
 void Shader::use() {
