@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include <cmath>
+
 Game::Game() {
     
 }
@@ -26,9 +28,10 @@ void Game::prepare() {
     m_shader.compileShaders("Shaders/simple.vert", "Shaders/simple.frag");
     
     GLfloat vertices[] = {
-        -0.5f, -0.5f, 0.0f,
-         0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f
+        // Positions         // Colors
+        -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // Bottom right
+         0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // Bottom left
+         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // Top
     };
     
     glGenVertexArrays(1, &m_vao);
@@ -39,8 +42,13 @@ void Game::prepare() {
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    // Position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
+    
+    // Color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
@@ -115,11 +123,9 @@ void Game::draw() {
     glClear(GL_COLOR_BUFFER_BIT);
     
     m_shader.use();
+    
     glBindVertexArray(m_vao);
-    
-    // Draw stuff
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    
     glBindVertexArray(0);
     
     glUseProgram(0);
