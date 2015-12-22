@@ -11,8 +11,8 @@ public:
     
     void compileShaders(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
     void compileShader(GLuint shaderID, const GLchar* shaderSource);
-//    void linkShaders();
-//    const GLchar* loadSourceFromFile(const std::string shaderPath);
+    void linkShaders(GLuint vertexShaderID, GLuint fragmentShaderID);
+    std::string loadSourceFromFile(const std::string& shaderPath);
     
     void use();
     

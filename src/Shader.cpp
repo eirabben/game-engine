@@ -15,62 +15,25 @@ Shader::~Shader() {
 
 void Shader::compileShaders(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) {
     // Retrieve the source code from the file paths
-    std::string vertexShaderCode;
-    std::string fragmentShaderCode;
-    std::ifstream vertexShaderFile;
-    std::ifstream fragmentShaderFile;
-    
-    // Ensure that ifstream objects can throw exceptions
-    vertexShaderFile.exceptions(std::ifstream::badbit);
-    fragmentShaderFile.exceptions(std::ifstream::badbit);
-    try {
-        // Open files
-        vertexShaderFile.open(vertexShaderPath);
-        fragmentShaderFile.open(fragmentShaderPath);
-        std::stringstream vertexShaderStream;
-        std::stringstream fragmentShaderStream;
-        // Read file buffers into streams
-        vertexShaderStream << vertexShaderFile.rdbuf();
-        fragmentShaderStream << fragmentShaderFile.rdbuf();
-        // Close file handles
-        vertexShaderFile.close();
-        fragmentShaderFile.close();
-        // Convert stream into string
-        vertexShaderCode = vertexShaderStream.str();
-        fragmentShaderCode = fragmentShaderStream.str();
-    } catch (std::ifstream::failure e) {
-        std::cout << "Could not read shader file\n";
-    }
-    
-    const GLchar* vertexCode = vertexShaderCode.c_str();
-    const GLchar* fragmentCode = fragmentShaderCode.c_str();
+    std::string vertexShaderSource = loadSourceFromFile(vertexShaderPath);
+    std::string fragmentShaderSource = loadSourceFromFile(fragmentShaderPath);
     
     GLuint vertexShader;
     GLuint fragmentShader;
     
     // Compile shaders
-    GLint success;
-    GLchar infoLog[512];
     
     // Vertex shader
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    compileShader(vertexShader, vertexCode);
+    compileShader(vertexShader, vertexShaderSource.c_str());
     
     // Fragment shader
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    compileShader(fragmentShader, fragmentCode);
+    compileShader(fragmentShader, fragmentShaderSource.c_str());
     
     // Shader program
-    m_program = glCreateProgram();
-    glAttachShader(m_program, vertexShader);
-    glAttachShader(m_program, fragmentShader);
-    glLinkProgram(m_program);
-    // Check for errors
-    glGetProgramiv(m_program, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(m_program, 512, NULL, infoLog);
-        std::cout << "Could not link program\n" << infoLog << "\n";
-    }
+    linkShaders(vertexShader, fragmentShader);
+
     // Shaders are no longer needed, delete them
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
@@ -92,9 +55,56 @@ void Shader::compileShader(GLuint shaderID, const GLchar* shaderSource) {
     }
 }
 
+void Shader::linkShaders(GLuint vertexShaderID, GLuint fragmentShaderID) {
+    // Create shader program
+    m_program = glCreateProgram();
+    
+    // Attach shaders
+    glAttachShader(m_program, vertexShaderID);
+    glAttachShader(m_program, fragmentShaderID);
+    
+    // Link the program
+    glLinkProgram(m_program);
+    
+    // Check for errors
+    GLint success;
+    GLchar infoLog[512];
+    glGetProgramiv(m_program, GL_LINK_STATUS, &success);
+    if (!success) {
+        glGetProgramInfoLog(m_program, 512, NULL, infoLog);
+        std::cout << "Could not link program\n" << infoLog << "\n";
+    }
+}
+
+std::string Shader::loadSourceFromFile(const std::string& shaderPath) {
+    // Retrieve the source code from the file paths
+    std::string shaderSource;
+    std::ifstream shaderFile;
+    
+    // Ensure that ifstream objects can throw exceptions
+    shaderFile.exceptions(std::ifstream::badbit);
+    try {
+        // Open files
+        shaderFile.open(shaderPath);
+        std::stringstream shaderStream;
+        // Read file buffers into streams
+        shaderStream << shaderFile.rdbuf();
+        // Close file handles
+        shaderFile.close();
+        // Convert stream into string
+        shaderSource = shaderStream.str();
+    } catch (std::ifstream::failure e) {
+        std::cout << "Could not read shader file: " << shaderPath << "\n";
+    }
+    
+    return shaderSource;
+}
+
 void Shader::use() {
     glUseProgram(m_program);
 }
+
+
 
 
 
