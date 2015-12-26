@@ -11,6 +11,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/)
 # Set directory for the source
 set(PROJECT_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
+# Add header only libraries to include
+include_directories(${CMAKE_SOURCE_DIR}/deps/include)
+
 # Include SDL2
 find_package(SDL2 REQUIRED)
 if(SDL2_FOUND)

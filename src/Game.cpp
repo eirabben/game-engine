@@ -1,10 +1,6 @@
 #include "Game.hpp"
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <string>
 
-#include <cmath>
+#include <iostream>
 
 Game::Game() {
     
@@ -33,6 +29,24 @@ void Game::prepare() {
          0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // Bottom left
          0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // Top
     };
+    
+    // Texture coordinates
+    GLfloat texCoords[] = {
+        0.0f, 0.0f,  // lower left
+        1.0f, 0.0f,  // lower right
+        0.5f, 1.0f   // top center
+    };
+    
+    // Set texture wrapping options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    
+    // Set texture filtering options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    // Set mipmap filtering options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     
     glGenVertexArrays(1, &m_vao);
     glGenBuffers(1, &m_vbo);
@@ -68,19 +82,8 @@ void Game::init() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     
-    // Create the window
-    m_window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_windowWidth, m_windowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-    if (m_window == nullptr) {
-        std::cout << "Window could not be created: " << SDL_GetError() << "\n";
-    }
-    
-    // Create the OpenGL context
-    m_context = SDL_GL_CreateContext(m_window);
-    if (m_context == NULL) {
-        std::cout << "Could not create context: " << SDL_GetError() << "\n";
-    }
-    
-    glViewport(0, 0, m_windowWidth, m_windowHeight);
+    // TODO: add options to window creation
+    m_window.create();
     
     const GLubyte* renderer = glGetString(GL_RENDERER);
     const GLubyte* version = glGetString(GL_VERSION);
@@ -96,9 +99,8 @@ void Game::destroy() {
     glDeleteVertexArrays(1, &m_vao);
     glDeleteBuffers(1, &m_vbo);
     
-    SDL_GL_DeleteContext(m_context);
-    SDL_DestroyWindow(m_window);
-    m_window = nullptr;
+    m_window.destroy();
+    
     SDL_Quit();
 }
 
@@ -130,7 +132,7 @@ void Game::draw() {
     
     glUseProgram(0);
     
-    SDL_GL_SwapWindow(m_window);
+    m_window.swapWindow();
 }
 
 

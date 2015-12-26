@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Shader.hpp"
+#include "Window.hpp"
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_opengl.h>
 #include <OpenGL/gl3.h>
+
 
 class Game {
 public:
@@ -22,15 +22,9 @@ public:
     void draw();
     
 private:
-    SDL_Window* m_window = nullptr;
-    SDL_GLContext m_context;
-    
+    Window m_window;
     Shader m_shader;
     
     GLuint m_vao;
     GLuint m_vbo;
-    
-    const int m_windowWidth = 800;
-    const int m_windowHeight = 600;
-    
 };
