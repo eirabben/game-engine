@@ -1,6 +1,9 @@
 #include "Game.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION // Required for stb_image.h
+#include <stb_image.h>
 #include <iostream>
+#include <string>
 
 Game::Game() {
     
@@ -21,54 +24,121 @@ void Game::run() {
 }
 
 void Game::prepare() {
-    m_shader.compileShaders("Shaders/simple.vert", "Shaders/simple.frag");
+    m_shader.compileShaders("res/Shaders/simple.vert", "res/Shaders/simple.frag");
+    
+//    GLfloat vertices[] = {
+//        // Positions         // Colors
+//        -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // Bottom right
+//         0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // Bottom left
+//         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // Top
+//    };
+//    
+//    // Texture coordinates
+//    GLfloat texCoords[] = {
+//        0.0f, 0.0f,  // lower left
+//        1.0f, 0.0f,  // lower right
+//        0.5f, 1.0f   // top center
+//    };
     
     GLfloat vertices[] = {
-        // Positions         // Colors
-        -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // Bottom right
-         0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // Bottom left
-         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // Top
+        // Positions          // Colors           // Texture Coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left
     };
     
-    // Texture coordinates
-    GLfloat texCoords[] = {
-        0.0f, 0.0f,  // lower left
-        1.0f, 0.0f,  // lower right
-        0.5f, 1.0f   // top center
+    GLuint indices[] = {
+        0, 1, 3,  // First triangle
+        1, 2, 3   // Second triangle
     };
-    
-    // Set texture wrapping options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    
-    // Set texture filtering options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     // Set mipmap filtering options
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     
     glGenVertexArrays(1, &m_vao);
     glGenBuffers(1, &m_vbo);
+    glGenBuffers(1, &m_ebo);
     
     glBindVertexArray(m_vao);
     
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    
     // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
     
     // Color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
+    
+    // Texture attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     
     glBindVertexArray(0);
     
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // Load texture images
+    
+    // Texture 1
+    glGenTextures(1, &m_texture1);
+    glBindTexture(GL_TEXTURE_2D, m_texture1);
+    
+    // Set texture wrapping options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    // Set texture filtering options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    int width;
+    int height;
+    std::string filename = "res/Textures/container.jpg";
+    unsigned char* imageData = stbi_load(filename.c_str(), &width, &height, 0, 3);
+    
+    // Check if image was loaded
+    if (imageData == NULL) {
+        std::cout << "Image data not found\n";
+    }
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(imageData);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+
+    // Texture 2
+    glGenTextures(1, &m_texture2);
+    glBindTexture(GL_TEXTURE_2D, m_texture2);
+    
+    // Set texture wrapping options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    // Set texture filtering options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    filename = "res/Textures/awesomeface.png";
+    imageData = stbi_load(filename.c_str(), &width, &height, 0, 3);
+    
+    // Check if image was loaded
+    if (imageData == NULL) {
+        std::cout << "Image data not found\n";
+    }
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(imageData);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
 }
 
 void Game::init() {
@@ -126,8 +196,16 @@ void Game::draw() {
     
     m_shader.use();
     
+    // Use our textures
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_texture1);
+    glUniform1i(m_shader.getUniformLocation("ourTexture1"), 0);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_texture2);
+    glUniform1i(m_shader.getUniformLocation("ourTexture2"), 1);
+    
     glBindVertexArray(m_vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
     
     glUseProgram(0);
