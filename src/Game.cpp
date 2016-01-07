@@ -202,6 +202,8 @@ void Game::init() {
     // TODO: add options to window creation
     m_window.create();
     
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    
     const GLubyte* renderer = glGetString(GL_RENDERER);
     const GLubyte* version = glGetString(GL_VERSION);
     std::cout << "Renderer: " << renderer << "\n";
@@ -222,16 +224,12 @@ void Game::destroy() {
 }
 
 void Game::update() {
-    bool run = true;
-    
-    SDL_Event windowEvent;
-    
-    while (run) {
-        if (SDL_PollEvent(&windowEvent)) {
-            if (windowEvent.type == SDL_QUIT) {
-                run = false;
-            }
-        }
+    while (!m_quit) {
+        float currentFrame = SDL_GetTicks();
+        m_deltaTime = currentFrame - m_lastFrame;
+        m_lastFrame = currentFrame;
+        
+        handleInput(m_deltaTime);
         
         draw();
     }
@@ -268,18 +266,16 @@ void Game::draw() {
 //    model = glm::rotate(model, (GLfloat)SDL_GetTicks() / 1000 * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
     
     glm::mat4 view;
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    view = m_camera.getViewMatrix();
     
     glm::mat4 projection;
-    projection = glm::perspective(glm::radians(45.0f), (float)m_window.getWidth() / (float)m_window.getHeight(), 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(m_camera.getZoom()), (float)m_window.getWidth() / (float)m_window.getHeight(), 0.1f, 1000.0f);
     
     GLuint modelLoc = m_shader.getUniformLocation("model");
-//    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-    
     GLuint viewLoc = m_shader.getUniformLocation("view");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    
     GLuint projectionLoc = m_shader.getUniformLocation("projection");
+    
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
     
     glBindVertexArray(m_vao);
@@ -298,6 +294,42 @@ void Game::draw() {
     glUseProgram(0);
     
     m_window.swapWindow();
+}
+
+void Game::handleInput(float deltaTime) {
+    SDL_Event windowEvent;
+    
+    if (SDL_PollEvent(&windowEvent)) {
+        if (windowEvent.type == SDL_QUIT) {
+            m_quit = true;
+        } else if (windowEvent.type == SDL_KEYDOWN) {
+            switch (windowEvent.key.keysym.sym) {
+                case SDLK_w:
+                    m_camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
+                    break;
+                case SDLK_a:
+                    m_camera.processKeyboard(CameraMovement::LEFT, deltaTime);
+                    break;
+                case SDLK_s:
+                    m_camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
+                    break;
+                case SDLK_d:
+                    m_camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
+                    break;
+                case SDLK_ESCAPE:
+                    m_quit = true;
+                    break;
+                default:
+                    break;
+            }
+        } else if (windowEvent.type == SDL_MOUSEMOTION) {
+            m_camera.processMouseMovement(windowEvent.motion.xrel, -windowEvent.motion.yrel);
+        } else if (windowEvent.type == SDL_MOUSEWHEEL) {
+            // @TODO: Not working properly
+            m_camera.processMouseScroll(windowEvent.wheel.y);
+        }
+    }
+
 }
 
 

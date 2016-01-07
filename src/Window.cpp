@@ -41,3 +41,11 @@ void Window::destroy() {
 void Window::swapWindow() {
     SDL_GL_SwapWindow(m_window);
 }
+
+int Window::getWidth() const {
+    return m_width;
+}
+
+int Window::getHeight() const {
+    return m_height;
+}

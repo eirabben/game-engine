@@ -13,8 +13,8 @@ public:
     
     void swapWindow();
     
-    int getWidth() const { return m_width; }
-    int getHeight() const { return m_height; }
+    int getWidth() const;
+    int getHeight() const;
     
 private:
     SDL_Window* m_window = nullptr;
