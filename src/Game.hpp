@@ -4,7 +4,7 @@
 #include "Window.hpp"
 
 #include <OpenGL/gl3.h>
-
+#include <glm/glm.hpp>
 
 class Game {
 public:

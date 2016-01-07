@@ -13,6 +13,9 @@ public:
     
     void swapWindow();
     
+    int getWidth() const { return m_width; }
+    int getHeight() const { return m_height; }
+    
 private:
     SDL_Window* m_window = nullptr;
     SDL_GLContext m_context;
