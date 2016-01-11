@@ -204,6 +204,8 @@ void Game::init() {
     
     SDL_SetRelativeMouseMode(SDL_TRUE);
     
+    SDL_GL_SetSwapInterval(1);
+    
     const GLubyte* renderer = glGetString(GL_RENDERER);
     const GLubyte* version = glGetString(GL_VERSION);
     std::cout << "Renderer: " << renderer << "\n";
@@ -211,7 +213,6 @@ void Game::init() {
     
     glEnable(GL_DEPTH_TEST); // enable depth-testing
 //    glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
-    
 }
 
 void Game::destroy() {
@@ -225,13 +226,14 @@ void Game::destroy() {
 
 void Game::update() {
     while (!m_quit) {
-        float currentFrame = SDL_GetTicks();
-        m_deltaTime = currentFrame - m_lastFrame;
-        m_lastFrame = currentFrame;
+        currentTime = SDL_GetTicks();
+        deltaTime = currentTime - prevTime;
         
-        handleInput(m_deltaTime);
-        
+        handleInput(deltaTime);
+        // update(deltaTime);
         draw();
+        
+        prevTime = currentTime;
     }
 }
 
@@ -248,22 +250,6 @@ void Game::draw() {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_texture2);
     glUniform1i(m_shader.getUniformLocation("ourTexture2"), 1);
-    
-    glm::vec3 cubePositions[] = {
-        glm::vec3( 0.0f,  0.0f,  0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3( 1.3f, -2.0f, -2.5f),
-        glm::vec3( 1.5f,  2.0f, -2.5f),
-        glm::vec3( 1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)  
-    };
-    
-//    glm::mat4 model;
-//    model = glm::rotate(model, (GLfloat)SDL_GetTicks() / 1000 * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
     
     glm::mat4 view;
     view = m_camera.getViewMatrix();
@@ -297,39 +283,55 @@ void Game::draw() {
 }
 
 void Game::handleInput(float deltaTime) {
-    SDL_Event windowEvent;
+    m_inputHandler.update();
     
-    if (SDL_PollEvent(&windowEvent)) {
-        if (windowEvent.type == SDL_QUIT) {
-            m_quit = true;
-        } else if (windowEvent.type == SDL_KEYDOWN) {
-            switch (windowEvent.key.keysym.sym) {
-                case SDLK_w:
-                    m_camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
-                    break;
-                case SDLK_a:
-                    m_camera.processKeyboard(CameraMovement::LEFT, deltaTime);
-                    break;
-                case SDLK_s:
-                    m_camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
-                    break;
-                case SDLK_d:
-                    m_camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
-                    break;
-                case SDLK_ESCAPE:
-                    m_quit = true;
-                    break;
-                default:
-                    break;
-            }
-        } else if (windowEvent.type == SDL_MOUSEMOTION) {
-            m_camera.processMouseMovement(windowEvent.motion.xrel, -windowEvent.motion.yrel);
-        } else if (windowEvent.type == SDL_MOUSEWHEEL) {
-            // @TODO: Not working properly
-            m_camera.processMouseScroll(windowEvent.wheel.y);
+    SDL_Event e;
+    
+    if (SDL_PollEvent(&e)) {
+        
+        switch (e.type) {
+            case SDL_QUIT:
+                m_quit = true;
+                break;
+            case SDL_KEYDOWN:
+                m_inputHandler.pressKey(e.key.keysym.sym);
+                break;
+            case SDL_KEYUP:
+                m_inputHandler.releaseKey(e.key.keysym.sym);
+                break;
+            case SDL_MOUSEMOTION:
+                m_inputHandler.setMouseCoords(e.motion.x, e.motion.y);
+                m_camera.processMouseMovement(e.motion.xrel, -e.motion.yrel);
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                m_inputHandler.pressKey(e.button.button);
+                break;
+            case SDL_MOUSEBUTTONUP:
+                m_inputHandler.releaseKey(e.button.button);
+                break;
+            case SDL_MOUSEWHEEL:
+                m_camera.processMouseScroll(e.wheel.y);
+                break;
+            default:
+                break;
         }
     }
-
+    
+    if (m_inputHandler.isKeyDown(SDLK_w)) {
+        m_camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
+    }
+    if (m_inputHandler.isKeyDown(SDLK_a)) {
+        m_camera.processKeyboard(CameraMovement::LEFT, deltaTime);
+    }
+    if (m_inputHandler.isKeyDown(SDLK_s)) {
+        m_camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
+    }
+    if (m_inputHandler.isKeyDown(SDLK_d)) {
+        m_camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
+    }
+    if (m_inputHandler.isKeyDown(SDLK_ESCAPE)) {
+        m_quit = true;
+    }
 }
 
 

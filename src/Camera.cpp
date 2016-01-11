@@ -1,19 +1,18 @@
 #include "Camera.hpp"
 
-Camera::Camera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) {
-    m_position = position;
-    m_worldUp = up;
-    m_yaw = yaw;
-    m_pitch = pitch;
-    
+Camera::Camera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) :
+m_position(position),
+m_worldUp(up),
+m_yaw(yaw),
+m_pitch(pitch) {
     updateCameraVectors();
 }
 
-Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch) {
-    m_position = glm::vec3(posX, posY, posZ);
-    m_worldUp = glm::vec3(upX, upY, upZ);
-    m_yaw = yaw;
-    m_pitch = pitch;
+Camera::Camera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch) :
+m_position(glm::vec3(posX, posY, posZ)),
+m_worldUp(glm::vec3(upX, upY, upZ)),
+m_yaw(yaw),
+m_pitch(pitch) {
     
     updateCameraVectors();
 }
