@@ -4,6 +4,7 @@
 #include "InputHandler.hpp"
 #include "Shader.hpp"
 #include "Window.hpp"
+#include "Timer.hpp"
 
 #include <OpenGL/gl3.h>
 #include <glm/glm.hpp>
@@ -30,6 +31,7 @@ public:
 private:
     Window m_window;
     Shader m_shader;
+    Timer m_timer;
     InputHandler m_inputHandler;
     Camera m_camera = {glm::vec3(0.0f, 0.0f, 3.0f)};
     

@@ -213,6 +213,8 @@ void Game::init() {
     
     glEnable(GL_DEPTH_TEST); // enable depth-testing
 //    glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+    
+    m_timer.init();
 }
 
 void Game::destroy() {
@@ -226,6 +228,7 @@ void Game::destroy() {
 
 void Game::update() {
     while (!m_quit) {
+        m_timer.beginFrame();
         currentTime = SDL_GetTicks();
         deltaTime = currentTime - prevTime;
         
@@ -234,6 +237,17 @@ void Game::update() {
         draw();
         
         prevTime = currentTime;
+        
+        float fps = m_timer.endFrame();
+        
+        static int frames = 0;
+        if (frames > 100) {
+            frames = 0;
+            std::cout << fps << "\n";
+        }
+        frames++;
+     
+        m_window.swapWindow();
     }
 }
 
@@ -265,6 +279,7 @@ void Game::draw() {
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
     
     glBindVertexArray(m_vao);
+    
     for (GLuint i = 0; i < 10; i++) {
         glm::mat4 model;
         model = glm::translate(model, cubePositions[i]);
@@ -278,8 +293,6 @@ void Game::draw() {
     glBindVertexArray(0);
     
     glUseProgram(0);
-    
-    m_window.swapWindow();
 }
 
 void Game::handleInput(float deltaTime) {
@@ -287,7 +300,7 @@ void Game::handleInput(float deltaTime) {
     
     SDL_Event e;
     
-    if (SDL_PollEvent(&e)) {
+    while (SDL_PollEvent(&e)) {
         
         switch (e.type) {
             case SDL_QUIT:
