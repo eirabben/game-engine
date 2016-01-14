@@ -8,10 +8,10 @@ using KeyID = unsigned int;
 class InputHandler {
 public:
     void update();
-    void handleInput();
     
-    void pressKey(KeyID id);
-    void releaseKey(KeyID id);
+    void keyPressed(KeyID id);
+    void keyReleased(KeyID id);
+    void mouseMoved(float newX, float newY, float xRel, float yRel);
     
     void setMouseCoords(float x, float y);
     

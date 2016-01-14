@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Camera.hpp"
+#include <functional>
 
 class Command {
 public:
@@ -8,9 +9,16 @@ public:
     virtual void execute(Camera& camera) = 0;
 };
 
-class MoveForwardCommand : public Command {
+class QuitCommand : public Command {
 public:
-    virtual void execute(Camera& camera) {
+    QuitCommand(std::function<void(Camera& camera)> func) : func(func) {
         
     }
+    
+    virtual void execute(Camera& camera) {
+        func(camera);
+    }
+    
+private:
+    std::function<void(Camera& camera)> func;
 };

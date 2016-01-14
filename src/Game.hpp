@@ -17,13 +17,13 @@ public:
     
     void run();
     
-    // Temporary
-    void prepare();
-    
     void init();
     void destroy();
     
-    void update();
+    // Temporary
+    void prepare();
+    
+    void update(float deltaTime);
     void draw();
     
     void handleInput(float deltaTime);

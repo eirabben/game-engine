@@ -8,15 +8,15 @@ void InputHandler::update() {
     }
 }
 
-void InputHandler::handleInput() {
-    
-}
+//void InputHandler::handleInput() {
+//    
+//}
 
-void InputHandler::pressKey(KeyID id) {
+void InputHandler::keyPressed(KeyID id) {
     m_keyMap[id] = true;
 }
 
-void InputHandler::releaseKey(KeyID id) {
+void InputHandler::keyReleased(KeyID id) {
     m_keyMap[id] = false;
 }
 

@@ -22,9 +22,69 @@ void Game::run() {
     
     prepare();
     
-    update();
+    while (!m_quit) {
+        m_timer.beginFrame();
+        
+        currentTime = SDL_GetTicks();
+        deltaTime = currentTime - prevTime;
+        
+        handleInput(deltaTime);
+        update(deltaTime);
+        draw();
+        
+        prevTime = currentTime;
+        
+        float fps = m_timer.endFrame();
+        
+        static int frames = 0;
+        if (frames > 100) {
+            frames = 0;
+            std::cout << fps << "\n";
+        }
+        frames++;
+        
+        m_window.swapWindow();
+    }
     
     destroy();
+}
+
+void Game::init() {
+    // Initialize SDL
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        std::cout << "Could not initialize SDL: " << SDL_GetError() << "\n";
+    }
+    
+    // Tell OpenGL to create a core context
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    
+    // TODO: add options to window creation
+    m_window.create();
+    
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    
+    SDL_GL_SetSwapInterval(1);
+    
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    const GLubyte* version = glGetString(GL_VERSION);
+    std::cout << "Renderer: " << renderer << "\n";
+    std::cout << "OpenGL version supported: " << version << "\n";
+    
+    glEnable(GL_DEPTH_TEST); // enable depth-testing
+    //    glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+    
+    m_timer.init();
+}
+
+void Game::destroy() {
+    glDeleteVertexArrays(1, &m_vao);
+    glDeleteBuffers(1, &m_vbo);
+    
+    m_window.destroy();
+    
+    SDL_Quit();
 }
 
 void Game::prepare() {
@@ -188,67 +248,8 @@ void Game::prepare() {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Game::init() {
-    // Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cout << "Could not initialize SDL: " << SDL_GetError() << "\n";
-    }
-    
-    // Tell OpenGL to create a core context
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    
-    // TODO: add options to window creation
-    m_window.create();
-    
-    SDL_SetRelativeMouseMode(SDL_TRUE);
-    
-    SDL_GL_SetSwapInterval(1);
-    
-    const GLubyte* renderer = glGetString(GL_RENDERER);
-    const GLubyte* version = glGetString(GL_VERSION);
-    std::cout << "Renderer: " << renderer << "\n";
-    std::cout << "OpenGL version supported: " << version << "\n";
-    
-    glEnable(GL_DEPTH_TEST); // enable depth-testing
-//    glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
-    
-    m_timer.init();
-}
+void Game::update(float deltaTime) {
 
-void Game::destroy() {
-    glDeleteVertexArrays(1, &m_vao);
-    glDeleteBuffers(1, &m_vbo);
-    
-    m_window.destroy();
-    
-    SDL_Quit();
-}
-
-void Game::update() {
-    while (!m_quit) {
-        m_timer.beginFrame();
-        currentTime = SDL_GetTicks();
-        deltaTime = currentTime - prevTime;
-        
-        handleInput(deltaTime);
-        // update(deltaTime);
-        draw();
-        
-        prevTime = currentTime;
-        
-        float fps = m_timer.endFrame();
-        
-        static int frames = 0;
-        if (frames > 100) {
-            frames = 0;
-            std::cout << fps << "\n";
-        }
-        frames++;
-     
-        m_window.swapWindow();
-    }
 }
 
 void Game::draw() {
@@ -307,20 +308,20 @@ void Game::handleInput(float deltaTime) {
                 m_quit = true;
                 break;
             case SDL_KEYDOWN:
-                m_inputHandler.pressKey(e.key.keysym.sym);
+                m_inputHandler.keyPressed(e.key.keysym.sym);
                 break;
             case SDL_KEYUP:
-                m_inputHandler.releaseKey(e.key.keysym.sym);
+                m_inputHandler.keyReleased(e.key.keysym.sym);
                 break;
             case SDL_MOUSEMOTION:
                 m_inputHandler.setMouseCoords(e.motion.x, e.motion.y);
                 m_camera.processMouseMovement(e.motion.xrel, -e.motion.yrel);
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                m_inputHandler.pressKey(e.button.button);
+                m_inputHandler.keyPressed(e.button.button);
                 break;
             case SDL_MOUSEBUTTONUP:
-                m_inputHandler.releaseKey(e.button.button);
+                m_inputHandler.keyReleased(e.button.button);
                 break;
             case SDL_MOUSEWHEEL:
                 m_camera.processMouseScroll(e.wheel.y);
