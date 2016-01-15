@@ -1,22 +1,25 @@
 #pragma once
 
+#include "Command.hpp"
 #include <glm/glm.hpp>
 #include <unordered_map>
+#include <memory>
 
 using KeyID = unsigned int;
 
 class InputHandler {
 public:
+    InputHandler();
+    
     void update();
+    Command* handleInput();
     
     void keyPressed(KeyID id);
     void keyReleased(KeyID id);
     void mouseMoved(float newX, float newY, float xRel, float yRel);
     
-    void setMouseCoords(float x, float y);
-    
     bool isKeyDown(KeyID id);
-    bool wasKeyPressed(KeyID id); // @TODO: Change the name to reflect what it does
+    bool wasKeyPressed(KeyID id);
     
     glm::vec2 getMouseCoords() const;
     
@@ -28,4 +31,8 @@ private:
     
     glm::vec2 m_mouseCoords = glm::vec2(0.0f, 0.0f);
     
+    std::unique_ptr<Command> m_buttonW;
+    std::unique_ptr<Command> m_buttonA;
+    std::unique_ptr<Command> m_buttonS;
+    std::unique_ptr<Command> m_buttonD;
 };

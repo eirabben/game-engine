@@ -5,6 +5,8 @@
 #include "Shader.hpp"
 #include "Window.hpp"
 #include "Timer.hpp"
+#include "Cube.hpp"
+#include "Light.hpp"
 
 #include <OpenGL/gl3.h>
 #include <glm/glm.hpp>
@@ -30,21 +32,21 @@ public:
     
 private:
     Window m_window;
-    Shader m_shader;
     Timer m_timer;
     InputHandler m_inputHandler;
+    
+    Shader m_lightingShader;
+    Shader m_lampShader;
+    
     Camera m_camera = {glm::vec3(0.0f, 0.0f, 3.0f)};
+    Cube m_cube = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.5f, 0.31f)};
+    Light m_light = {glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f)};
     
     GLuint m_vao;
     GLuint m_vbo;
-    GLuint m_ebo;
     
-    GLuint m_texture1;
-    GLuint m_texture2;
-    
-    float frameTime = 0.0f;
-    int prevTime = 0;
-    int currentTime = 0;
+    int prevTicks = 0;
+    int currentTicks = 0;
     float deltaTime = 0.0f;
     
     std::vector<glm::vec3> cubePositions = {

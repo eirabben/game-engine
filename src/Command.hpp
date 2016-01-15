@@ -1,24 +1,39 @@
 #pragma once
 
-#include "Camera.hpp"
+#include "Entity.hpp"
 #include <functional>
+#include <iostream>
 
 class Command {
 public:
     virtual ~Command() {}
-    virtual void execute(Camera& camera) = 0;
+    virtual void execute(Entity& entity) = 0;
 };
 
-class QuitCommand : public Command {
+class MoveForwardCommand : public Command {
 public:
-    QuitCommand(std::function<void(Camera& camera)> func) : func(func) {
-        
+    virtual void execute(Entity& entity) override {
+        entity.moveForward();
     }
-    
-    virtual void execute(Camera& camera) {
-        func(camera);
+};
+
+class MoveBackwardCommand : public Command {
+public:
+    virtual void execute(Entity& entity) override {
+        entity.moveBackward();
     }
-    
-private:
-    std::function<void(Camera& camera)> func;
+};
+
+class MoveLeftCommand : public Command {
+public:
+    virtual void execute(Entity& entity) override {
+        entity.moveLeft();
+    }
+};
+
+class MoveRightCommand : public Command {
+public:
+    virtual void execute(Entity& entity) override {
+        entity.moveRight();
+    }
 };

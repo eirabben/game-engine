@@ -8,7 +8,7 @@ public:
     Window();
     ~Window();
     
-    void create();
+    void create(int width, int height);
     void destroy();
     
     void swapWindow();

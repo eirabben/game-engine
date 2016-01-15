@@ -28,5 +28,12 @@ if (OPENGL_FOUND)
     link_libraries(${OPENGL_LIBRARY})
 endif()
 
+# Include Lua
+find_package(Lua 5.2 REQUIRED)
+if (LUA_FOUND)
+    include_directories(${LUA_INCLUDE_DIR})
+    link_libraries(${LUA_LIBRARY})
+endif()
+
 # Add our source code directory
 add_subdirectory(src)

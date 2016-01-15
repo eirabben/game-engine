@@ -10,7 +10,10 @@ Window::~Window() {
     
 }
 
-void Window::create() {
+void Window::create(int width, int height) {
+    m_width = width;
+    m_height = height;
+    
     // Create the window with SDL
     m_window = SDL_CreateWindow("OpenGL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_width, m_height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     

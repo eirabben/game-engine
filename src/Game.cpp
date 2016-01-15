@@ -1,13 +1,18 @@
 #include "Game.hpp"
 
-#define STB_IMAGE_IMPLEMENTATION // Required for stb_image.h
-#include <stb_image.h>
+//#define STB_IMAGE_IMPLEMENTATION // Required for stb_image.h
+//#include <stb_image.h>
 #include <iostream>
 #include <string>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include <selene.h>
+
+#include "Command.hpp"
+#include "Cube.hpp"
 
 Game::Game() {
     
@@ -22,34 +27,39 @@ void Game::run() {
     
     prepare();
     
+    double previousTicks = SDL_GetTicks();
+    
     while (!m_quit) {
-        m_timer.beginFrame();
+        // Begin timer frame
+//        m_timer.beginFrame();
         
-        currentTime = SDL_GetTicks();
-        deltaTime = currentTime - prevTime;
+        // Calculate delta time
+        currentTicks = SDL_GetTicks();
+        deltaTime = currentTicks - previousTicks;
+        previousTicks = currentTicks;
         
         handleInput(deltaTime);
         update(deltaTime);
         draw();
         
-        prevTime = currentTime;
+//        m_timer.endFrame();
         
-        float fps = m_timer.endFrame();
-        
-        static int frames = 0;
-        if (frames > 100) {
-            frames = 0;
-            std::cout << fps << "\n";
-        }
-        frames++;
-        
-        m_window.swapWindow();
+//        static int frames = 0;
+//        if (frames > 100) {
+//            frames = 0;
+//            std::cout << m_timer.getFps() << "\n";
+//        }
+//        frames++;
     }
     
     destroy();
 }
 
 void Game::init() {
+    // Load Lua config
+    sel::State configState;
+    configState.Load("res/config.lua");
+    
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cout << "Could not initialize SDL: " << SDL_GetError() << "\n";
@@ -61,7 +71,7 @@ void Game::init() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     
     // TODO: add options to window creation
-    m_window.create();
+    m_window.create(configState["screenWidth"], configState["screenHeight"]);
     
     SDL_SetRelativeMouseMode(SDL_TRUE);
     
@@ -75,7 +85,11 @@ void Game::init() {
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     //    glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
     
-    m_timer.init();
+    m_lightingShader.compileShaders("res/Shaders/lighting.vert", "res/Shaders/lighting.frag");
+    m_lampShader.compileShaders("res/Shaders/lamp.vert", "res/Shaders/lamp.frag");
+    
+    double maxFps = configState["maxFps"];
+    m_timer.init(static_cast<float>(maxFps));
 }
 
 void Game::destroy() {
@@ -88,164 +102,8 @@ void Game::destroy() {
 }
 
 void Game::prepare() {
-    m_shader.compileShaders("res/Shaders/simple.vert", "res/Shaders/simple.frag");
-    
-//    GLfloat vertices[] = {
-//        // Positions         // Colors
-//        -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // Bottom right
-//         0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // Bottom left
-//         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // Top
-//    };
-//    
-//    // Texture coordinates
-//    GLfloat texCoords[] = {
-//        0.0f, 0.0f,  // lower left
-//        1.0f, 0.0f,  // lower right
-//        0.5f, 1.0f   // top center
-//    };
-    
-    GLfloat vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-    };
-    
-//    GLfloat vertices[] = {
-//        // Positions          // Colors           // Texture Coords
-//         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Top Right
-//         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Bottom Right
-//        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Bottom Left
-//        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Top Left
-//    };
-    
-//    GLuint indices[] = {
-//        0, 1, 3,  // First triangle
-//        1, 2, 3   // Second triangle
-//    };
-    
-    // Set mipmap filtering options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    
-    glGenVertexArrays(1, &m_vao);
-    glGenBuffers(1, &m_vbo);
-//    glGenBuffers(1, &m_ebo);
-    
-    glBindVertexArray(m_vao);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-    
-    // Color attribute
-//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-//    glEnableVertexAttribArray(1);
-    
-    // Texture attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
-    glBindVertexArray(0);
-    
-    // Load texture images
-    
-    // Texture 1
-    glGenTextures(1, &m_texture1);
-    glBindTexture(GL_TEXTURE_2D, m_texture1);
-    
-    // Set texture wrapping options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
-    // Set texture filtering options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    int width;
-    int height;
-    std::string filename = "res/Textures/container.jpg";
-    unsigned char* imageData = stbi_load(filename.c_str(), &width, &height, 0, 3);
-    
-    // Check if image was loaded
-    if (imageData == NULL) {
-        std::cout << "Image data not found\n";
-    }
-    
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(imageData);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    
-
-    // Texture 2
-    glGenTextures(1, &m_texture2);
-    glBindTexture(GL_TEXTURE_2D, m_texture2);
-    
-    // Set texture wrapping options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
-    // Set texture filtering options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    filename = "res/Textures/awesomeface.png";
-    imageData = stbi_load(filename.c_str(), &width, &height, 0, 3);
-    
-    // Check if image was loaded
-    if (imageData == NULL) {
-        std::cout << "Image data not found\n";
-    }
-    
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(imageData);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    m_cube.init();
+    m_light.init();
 }
 
 void Game::update(float deltaTime) {
@@ -253,47 +111,46 @@ void Game::update(float deltaTime) {
 }
 
 void Game::draw() {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    m_shader.use();
+    // Create camera transformations
+    glm::mat4 view = m_camera.getViewMatrix();
+    glm::mat4 projection = glm::perspective(glm::radians(m_camera.getZoom()), (float)m_window.getWidth() / (float)m_window.getHeight(), 0.1f, 100.0f);
     
-    // Use our textures
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_texture1);
-    glUniform1i(m_shader.getUniformLocation("ourTexture1"), 0);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_texture2);
-    glUniform1i(m_shader.getUniformLocation("ourTexture2"), 1);
+    // Use the lighting shader
+    m_lightingShader.use();
     
-    glm::mat4 view;
-    view = m_camera.getViewMatrix();
+    GLuint objectColorLoc = m_lightingShader.getUniformLocation("objectColor");
+    GLuint lightColorLoc = m_lightingShader.getUniformLocation("lightColor");
+    glUniform3fv(objectColorLoc, 1, glm::value_ptr(m_cube.getColor()));
+    glUniform3fv(lightColorLoc, 1, glm::value_ptr(m_light.getColor()));
     
-    glm::mat4 projection;
-    projection = glm::perspective(glm::radians(m_camera.getZoom()), (float)m_window.getWidth() / (float)m_window.getHeight(), 0.1f, 1000.0f);
-    
-    GLuint modelLoc = m_shader.getUniformLocation("model");
-    GLuint viewLoc = m_shader.getUniformLocation("view");
-    GLuint projectionLoc = m_shader.getUniformLocation("projection");
-    
+    // Get uniform locations
+    GLuint viewLoc = m_lightingShader.getUniformLocation("view");
+    GLuint projectionLoc = m_lightingShader.getUniformLocation("projection");
+    // Pass matrices to the shader
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
     
-    glBindVertexArray(m_vao);
+    // Draw the cube
+    m_cube.draw(m_lightingShader);
     
-    for (GLuint i = 0; i < 10; i++) {
-        glm::mat4 model;
-        model = glm::translate(model, cubePositions[i]);
-        GLfloat angle = 20.0f * i;
-        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
+    // Use the lamp shader
+    m_lampShader.use();
     
-    glBindVertexArray(0);
+    // Get locations
+    viewLoc = m_lampShader.getUniformLocation("view");
+    projectionLoc = m_lampShader.getUniformLocation("projection");
+    // Pass matrices to the shader
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    
+    m_light.draw(m_lampShader);
     
     glUseProgram(0);
+    
+    m_window.swapWindow();
 }
 
 void Game::handleInput(float deltaTime) {
@@ -314,7 +171,7 @@ void Game::handleInput(float deltaTime) {
                 m_inputHandler.keyReleased(e.key.keysym.sym);
                 break;
             case SDL_MOUSEMOTION:
-                m_inputHandler.setMouseCoords(e.motion.x, e.motion.y);
+                m_inputHandler.mouseMoved(e.motion.x, e.motion.y, e.motion.xrel, e.motion.yrel);
                 m_camera.processMouseMovement(e.motion.xrel, -e.motion.yrel);
                 break;
             case SDL_MOUSEBUTTONDOWN:
@@ -330,6 +187,11 @@ void Game::handleInput(float deltaTime) {
                 break;
         }
     }
+    
+//    Command* c = m_inputHandler.handleInput();
+//    if (c != nullptr) {
+//        c->execute(m_camera);
+//    }
     
     if (m_inputHandler.isKeyDown(SDLK_w)) {
         m_camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
