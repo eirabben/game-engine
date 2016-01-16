@@ -25,6 +25,10 @@ GLfloat Camera::getZoom() const {
     return m_zoom;
 }
 
+glm::vec3 Camera::getPosition() const {
+    return m_position;
+}
+
 void Camera::processKeyboard(CameraMovement direction, GLfloat deltaTime) {
     GLfloat velocity = m_movementSpeed * deltaTime / 1000;
     if (direction == CameraMovement::FORWARD) {

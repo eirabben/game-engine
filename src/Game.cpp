@@ -123,8 +123,12 @@ void Game::draw() {
     
     GLuint objectColorLoc = m_lightingShader.getUniformLocation("objectColor");
     GLuint lightColorLoc = m_lightingShader.getUniformLocation("lightColor");
+    GLuint lightPosLoc = m_lightingShader.getUniformLocation("lightPos");
+    GLuint viewPosLoc = m_lightingShader.getUniformLocation("viewPos");
     glUniform3fv(objectColorLoc, 1, glm::value_ptr(m_cube.getColor()));
     glUniform3fv(lightColorLoc, 1, glm::value_ptr(m_light.getColor()));
+    glUniform3fv(lightPosLoc, 1, glm::value_ptr(m_light.getPosition()));
+    glUniform3fv(viewPosLoc, 1, glm::value_ptr(m_camera.getPosition()));
     
     // Get uniform locations
     GLuint viewLoc = m_lightingShader.getUniformLocation("view");
