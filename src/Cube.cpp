@@ -7,9 +7,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-Cube::Cube(glm::vec3 position, glm::vec3 color) :
-m_position(position),
-m_color(color) {
+Cube::Cube(glm::vec3 position) :
+m_position(position) {
     
 }
 
@@ -19,6 +18,12 @@ void Cube::init() {
     glm::mat4 m = m_mesh.getModelMatrix();
     m = glm::translate(m, m_position);
     m_mesh.setModelMatrix(m);
+    
+    // Orange original
+    m_material.ambient = glm::vec3(1.0f, 0.5f, 0.31f);
+    m_material.diffuse = glm::vec3(1.0f, 0.5f, 0.31f);
+    m_material.specular = glm::vec3(0.5f, 0.5f, 0.5f);
+    m_material.shininess = 32.0f;
     
 //    // Load textures
 //    // Texture 1
@@ -77,6 +82,16 @@ void Cube::init() {
 
 
 void Cube::draw(Shader& shader) {
+    GLint matAmbientLoc = shader.getUniformLocation("material.ambient");
+    GLint matDiffuseLoc = shader.getUniformLocation("material.diffuse");
+    GLint matSpecularLoc = shader.getUniformLocation("material.specular");
+    GLint matShineLoc = shader.getUniformLocation("material.shininess");
+    
+    glUniform3fv(matAmbientLoc, 1, glm::value_ptr(m_material.ambient));
+    glUniform3fv(matDiffuseLoc, 1, glm::value_ptr(m_material.diffuse));
+    glUniform3fv(matSpecularLoc, 1, glm::value_ptr(m_material.specular));
+    glUniform1f(matShineLoc, m_material.shininess);
+    
     m_mesh.draw(shader);
     
     // Use our textures
@@ -90,7 +105,4 @@ void Cube::draw(Shader& shader) {
 
 glm::vec3 Cube::getPosition() const {
     return m_position;
-}
-glm::vec3 Cube::getColor() const {
-    return m_color;
 }

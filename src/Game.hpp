@@ -39,8 +39,8 @@ private:
     Shader m_lampShader;
     
     Camera m_camera = {glm::vec3(0.0f, 0.0f, 3.0f)};
-    Cube m_cube = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.5f, 0.31f)};
-    Light m_light = {glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(1.0f, 1.0f, 1.0f)};
+    Cube m_cube = {glm::vec3(0.0f, 0.0f, 0.0f)};
+    Light m_light = {glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.2f, 0.2f, 0.2f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 1.0f)};
     
     GLuint m_vao;
     GLuint m_vbo;

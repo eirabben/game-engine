@@ -121,14 +121,19 @@ void Game::draw() {
     // Use the lighting shader
     m_lightingShader.use();
     
-    GLuint objectColorLoc = m_lightingShader.getUniformLocation("objectColor");
-    GLuint lightColorLoc = m_lightingShader.getUniformLocation("lightColor");
-    GLuint lightPosLoc = m_lightingShader.getUniformLocation("lightPos");
     GLuint viewPosLoc = m_lightingShader.getUniformLocation("viewPos");
-    glUniform3fv(objectColorLoc, 1, glm::value_ptr(m_cube.getColor()));
-    glUniform3fv(lightColorLoc, 1, glm::value_ptr(m_light.getColor()));
-    glUniform3fv(lightPosLoc, 1, glm::value_ptr(m_light.getPosition()));
     glUniform3fv(viewPosLoc, 1, glm::value_ptr(m_camera.getPosition()));
+    
+    GLint lightPositionLoc = m_lightingShader.getUniformLocation("light.position");
+    GLint lightAmbientLoc = m_lightingShader.getUniformLocation("light.ambient");
+    GLint lightDiffuseLoc = m_lightingShader.getUniformLocation("light.diffuse");
+    GLint lightSpecularLoc = m_lightingShader.getUniformLocation("light.specular");
+    
+    glUniform3fv(lightPositionLoc, 1, glm::value_ptr(m_light.getPosition()));
+    glUniform3fv(lightAmbientLoc, 1, glm::value_ptr(m_light.getAmbient()));
+    glUniform3fv(lightDiffuseLoc, 1, glm::value_ptr(m_light.getDiffuse()));
+    glUniform3fv(lightSpecularLoc, 1, glm::value_ptr(m_light.getSpecular()));
+    
     
     // Get uniform locations
     GLuint viewLoc = m_lightingShader.getUniformLocation("view");
