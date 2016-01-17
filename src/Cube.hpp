@@ -7,6 +7,7 @@
 #include "Shader.hpp"
 #include "CubeMesh.hpp"
 #include "Material.hpp"
+#include "Texture.hpp"
 
 class Cube {
 public:
