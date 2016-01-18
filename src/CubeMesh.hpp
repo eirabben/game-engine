@@ -2,11 +2,13 @@
 
 #include "Shader.hpp"
 #include <OpenGL/gl3.h>
-#include <vector>
 #include <glm/glm.hpp>
+#include <vector>
 
 class CubeMesh {
 public:
+    ~CubeMesh();
+    
     void setupMesh();
     
     void draw(Shader& shader);

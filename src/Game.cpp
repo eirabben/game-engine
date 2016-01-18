@@ -1,18 +1,13 @@
 #include "Game.hpp"
 
-//#define STB_IMAGE_IMPLEMENTATION // Required for stb_image.h
-//#include <stb_image.h>
 #include <iostream>
 #include <string>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
 #include <selene.h>
-
-#include "Command.hpp"
-#include "Cube.hpp"
+#include <memory>
 
 Game::Game() {
     
@@ -93,9 +88,6 @@ void Game::init() {
 }
 
 void Game::destroy() {
-    glDeleteVertexArrays(1, &m_vao);
-    glDeleteBuffers(1, &m_vbo);
-    
     m_window.destroy();
     
     SDL_Quit();
@@ -103,7 +95,36 @@ void Game::destroy() {
 
 void Game::prepare() {
     m_cube.init();
-    m_light.init();
+    
+    m_dirLight.init();
+    DirLight dirLight;
+    dirLight.direction = glm::vec3(-0.2f, -1.0f, -0.3f);
+    dirLight.ambient = glm::vec3(0.05f);
+    dirLight.diffuse = glm::vec3(0.4f);
+    dirLight.specular = glm::vec3(0.5f);
+    m_dirLight.setLight(dirLight);
+    
+    m_pointLights.push_back(m_pointLight1);
+    m_pointLights.push_back(m_pointLight2);
+    m_pointLights.push_back(m_pointLight3);
+    m_pointLights.push_back(m_pointLight4);
+    
+    for (int i = 0; i < m_pointLights.size(); i++) {
+        m_pointLights[i].init();
+        m_pointLights[i].setPosition(pointLightPositions[i]);
+        PointLight pointLight = m_pointLights[i].getLight();
+        pointLight.position = pointLightPositions[i];
+        pointLight.ambient = glm::vec3(0.05f);
+        pointLight.diffuse = glm::vec3(0.8f);
+        pointLight.specular = glm::vec3(1.0f);
+        pointLight.constant = 1.0f;
+        pointLight.linear = 0.09f;
+        pointLight.quadratic = 0.032f;
+        m_pointLights[i].setLight(pointLight);
+    }
+    
+    for (int i = 0; i < 4; i++) {
+    }
 }
 
 void Game::update(float deltaTime) {
@@ -124,16 +145,20 @@ void Game::draw() {
     GLuint viewPosLoc = m_lightingShader.getUniformLocation("viewPos");
     glUniform3fv(viewPosLoc, 1, glm::value_ptr(m_camera.getPosition()));
     
-    GLint lightPositionLoc = m_lightingShader.getUniformLocation("light.position");
-    GLint lightAmbientLoc = m_lightingShader.getUniformLocation("light.ambient");
-    GLint lightDiffuseLoc = m_lightingShader.getUniformLocation("light.diffuse");
-    GLint lightSpecularLoc = m_lightingShader.getUniformLocation("light.specular");
+    glUniform3fv(m_lightingShader.getUniformLocation("dirLight.direction"), 1, glm::value_ptr(m_dirLight.getLight().direction));
+    glUniform3fv(m_lightingShader.getUniformLocation("dirLight.ambient"), 1, glm::value_ptr(m_dirLight.getLight().ambient));
+    glUniform3fv(m_lightingShader.getUniformLocation("dirLight.diffuse"), 1, glm::value_ptr(m_dirLight.getLight().diffuse));
+    glUniform3fv(m_lightingShader.getUniformLocation("dirLight.specular"), 1, glm::value_ptr(m_dirLight.getLight().specular));
     
-    glUniform3fv(lightPositionLoc, 1, glm::value_ptr(m_light.getPosition()));
-    glUniform3fv(lightAmbientLoc, 1, glm::value_ptr(m_light.getAmbient()));
-    glUniform3fv(lightDiffuseLoc, 1, glm::value_ptr(m_light.getDiffuse()));
-    glUniform3fv(lightSpecularLoc, 1, glm::value_ptr(m_light.getSpecular()));
-    
+    for (int i = 0; i < m_pointLights.size(); i++) {
+        glUniform3fv(m_lightingShader.getUniformLocation("pointLights[" + std::to_string(i) + "].position"), 1, glm::value_ptr(m_pointLights[i].getLight().position));
+        glUniform3fv(m_lightingShader.getUniformLocation("pointLights[" + std::to_string(i) + "].ambient"), 1, glm::value_ptr(m_pointLights[i].getLight().ambient));
+        glUniform3fv(m_lightingShader.getUniformLocation("pointLights[" + std::to_string(i) + "].diffuse"), 1, glm::value_ptr(m_pointLights[i].getLight().diffuse));
+        glUniform3fv(m_lightingShader.getUniformLocation("pointLights[" + std::to_string(i) + "].specular"), 1, glm::value_ptr(m_pointLights[i].getLight().specular));
+        glUniform1f(m_lightingShader.getUniformLocation("pointLights[" + std::to_string(i) + "].constant"), m_pointLights[i].getLight().constant);
+        glUniform1f(m_lightingShader.getUniformLocation("pointLights[" + std::to_string(i) + "].linear"), m_pointLights[i].getLight().linear);
+        glUniform1f(m_lightingShader.getUniformLocation("pointLights[" + std::to_string(i) + "].quadratic"), m_pointLights[i].getLight().quadratic);
+    }
     
     // Get uniform locations
     GLuint viewLoc = m_lightingShader.getUniformLocation("view");
@@ -155,7 +180,6 @@ void Game::draw() {
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
     
-    m_light.draw(m_lampShader);
     
     glUseProgram(0);
     

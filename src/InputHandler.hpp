@@ -12,7 +12,6 @@ public:
     InputHandler();
     
     void update();
-    Command* handleInput();
     
     void keyPressed(KeyID id);
     void keyReleased(KeyID id);
@@ -30,9 +29,4 @@ private:
     std::unordered_map<KeyID, bool> m_previousKeyMap;
     
     glm::vec2 m_mouseCoords = glm::vec2(0.0f, 0.0f);
-    
-    std::unique_ptr<Command> m_buttonW;
-    std::unique_ptr<Command> m_buttonA;
-    std::unique_ptr<Command> m_buttonS;
-    std::unique_ptr<Command> m_buttonD;
 };

@@ -1,5 +1,7 @@
 #include "Camera.hpp"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 Camera::Camera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) :
 m_position(position),
 m_worldUp(up),

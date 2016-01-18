@@ -1,9 +1,6 @@
 #include "Cube.hpp"
 
-#include "TextureLoader.hpp"
-#include <string>
-#include <iostream>
-#include <glm/gtc/type_ptr.hpp>
+#include "../TextureLoader.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 
 Cube::Cube(glm::vec3 position) :

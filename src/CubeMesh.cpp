@@ -1,6 +1,10 @@
 #include "CubeMesh.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
+CubeMesh::~CubeMesh() {
+    glDeleteVertexArrays(1, &m_vao);
+    glDeleteBuffers(1, &m_vbo);
+}
 
 void CubeMesh::setupMesh() {
     // Generate array and buffer objects

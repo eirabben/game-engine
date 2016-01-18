@@ -1,13 +1,12 @@
 #pragma once
 
-#include "Entity.hpp"
+#include "../Shader.hpp"
+#include "../CubeMesh.hpp"
+#include "../Material.hpp"
 #include <OpenGL/gl3.h>
-#include <vector>
 #include <glm/glm.hpp>
-#include "Shader.hpp"
-#include "CubeMesh.hpp"
-#include "Material.hpp"
-#include "Texture.hpp"
+#include <vector>
+
 
 class Cube {
 public:
