@@ -16,6 +16,9 @@ public:
     int getWidth() const;
     int getHeight() const;
     
+    // This should be temporary until relative mouse mode works
+    SDL_Window* getWindow() const { return m_window; }
+    
 private:
     SDL_Window* m_window = nullptr;
     SDL_GLContext m_context;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "InputHandler.hpp"
 #include "Scene.hpp"
 #include "Window.hpp"
 
@@ -11,11 +12,14 @@ public:
     void update(float deltaTime);
     void draw();
 
+    void onSdlEvent(SDL_Event& e);
+
     void quit();
     
-    Window m_window;
+    Window window;
+    InputHandler inputHandler;
     
 private:
-    Scene m_scene;
+    Scene scene;
 
 };

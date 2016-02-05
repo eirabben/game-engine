@@ -100,7 +100,7 @@ void Scene::draw() {
     
     // Create camera transformations
     glm::mat4 view = m_camera.getViewMatrix();
-    glm::mat4 projection = glm::perspective(glm::radians(m_camera.getZoom()), (float)m_game->m_window.getWidth() / (float)m_game->m_window.getHeight(), 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(m_camera.getZoom()), (float)m_game->window.getWidth() / (float)m_game->window.getHeight(), 0.1f, 100.0f);
 
     // Pass view matrix to shader
     GLuint viewLoc = m_lightingShader.getUniformLocation("view");
@@ -132,61 +132,28 @@ void Scene::draw() {
 }
 
 void Scene::handleInput(float deltaTime) {
-    m_inputHandler.update();
-    
     SDL_Event e;
-    
     while (SDL_PollEvent(&e)) {
-        
-        switch (e.type) {
-            case SDL_QUIT:
-                m_quit = true;
-                break;
-            case SDL_KEYDOWN:
-                m_inputHandler.keyPressed(e.key.keysym.sym);
-//                std::cout << "key pressed\n";
-                break;
-            case SDL_KEYUP:
-                m_inputHandler.keyReleased(e.key.keysym.sym);
-                break;
-            case SDL_MOUSEMOTION:
-                m_inputHandler.mouseMoved(e.motion.x, e.motion.y, e.motion.xrel, e.motion.yrel);
-                m_camera.processMouseMovement(e.motion.xrel, -e.motion.yrel);
-//                std::cout << "Mouse moved\n";
-                break;
-            case SDL_MOUSEBUTTONDOWN:
-                m_inputHandler.keyPressed(e.button.button);
-                break;
-            case SDL_MOUSEBUTTONUP:
-                m_inputHandler.keyReleased(e.button.button);
-                break;
-            case SDL_MOUSEWHEEL:
-                m_camera.processMouseScroll(e.wheel.y);
-                break;
-            default:
-                break;
-        }
+        m_game->onSdlEvent(e);
     }
     
-//    Command* c = m_inputHandler.handleInput();
-//    if (c != nullptr) {
-//        c->execute(m_camera);
-//    }
-    
-    if (m_inputHandler.isKeyDown(SDLK_w)) {
+    if (m_game->inputHandler.isKeyDown(SDLK_w)) {
         m_camera.processKeyboard(CameraMovement::FORWARD, deltaTime);
     }
-    if (m_inputHandler.isKeyDown(SDLK_a)) {
+    if (m_game->inputHandler.isKeyDown(SDLK_a)) {
         m_camera.processKeyboard(CameraMovement::LEFT, deltaTime);
     }
-    if (m_inputHandler.isKeyDown(SDLK_s)) {
+    if (m_game->inputHandler.isKeyDown(SDLK_s)) {
         m_camera.processKeyboard(CameraMovement::BACKWARD, deltaTime);
     }
-    if (m_inputHandler.isKeyDown(SDLK_d)) {
+    if (m_game->inputHandler.isKeyDown(SDLK_d)) {
         m_camera.processKeyboard(CameraMovement::RIGHT, deltaTime);
     }
-    if (m_inputHandler.isKeyDown(SDLK_ESCAPE)) {
+    if (m_game->inputHandler.isKeyDown(SDLK_ESCAPE)) {
         m_quit = true;
+    }
+    if (m_game->inputHandler.hasMouseMoved()) {
+        m_camera.processMouseMovement(-m_game->inputHandler.getMouseRel().x, m_game->inputHandler.getMouseRel().y);
     }
 }
 

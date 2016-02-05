@@ -13,10 +13,12 @@ void Game::run() {
     unsigned int currentTicks {0};
     float deltaTime {0.0f};
 
-    while (!m_scene.m_quit) {
+    while (!scene.m_quit) {
         currentTicks = SDL_GetTicks();
         deltaTime = (currentTicks - previousTicks);
         previousTicks = currentTicks;
+
+        inputHandler.update();
 
         update(deltaTime);
         draw();
@@ -42,32 +44,61 @@ bool Game::init() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     // @TODO: Add settings to window creation
-    m_window.create(config["screenWidth"], config["screenHeight"]);
+    window.create(config["screenWidth"], config["screenHeight"]);
     
-    SDL_SetRelativeMouseMode(SDL_FALSE);
+//    SDL_SetRelativeMouseMode(SDL_TRUE);
 
     SDL_GL_SetSwapInterval(1);
 
     glEnable(GL_DEPTH_TEST);
 
-    m_scene.setGame(this);
-    m_scene.init();
+    scene.setGame(this);
+    scene.init();
 
     return true;
 }
 
 void Game::update(float deltaTime) {
-    m_scene.update(deltaTime);
+    scene.update(deltaTime);
 }
 
 void Game::draw() {
-    m_scene.draw();
-    m_window.swapWindow();
+    scene.draw();
+    window.swapWindow();
+}
+
+void Game::onSdlEvent(SDL_Event& e) {
+    switch (e.type) {
+        case SDL_QUIT:
+            break;
+        case SDL_MOUSEMOTION:
+            std::cout << "Mouse movement\n";
+            inputHandler.mouseMoved(e.motion.x, e.motion.y, e.motion.xrel, e.motion.yrel);
+            SDL_WarpMouseInWindow(window.getWindow(), window.getWidth() / 2, window.getHeight() / 2);
+            break;
+        case SDL_KEYDOWN:
+            inputHandler.keyPressed(e.key.keysym.sym);
+            break;
+        case SDL_KEYUP:
+            inputHandler.keyReleased(e.key.keysym.sym);
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+            std::cout << "Mouse pressed\n";
+            inputHandler.keyPressed(e.button.button);
+            break;
+        case SDL_MOUSEBUTTONUP:
+            inputHandler.keyReleased(e.button.button);
+            break;
+        case SDL_MOUSEWHEEL:
+            break;
+        default:
+            break;
+    }
 }
 
 void Game::quit() {
-    m_scene.destroy();
-    m_window.destroy();
+    scene.destroy();
+    window.destroy();
     SDL_Quit();
 }
 
