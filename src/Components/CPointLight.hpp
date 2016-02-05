@@ -12,4 +12,6 @@ struct CPointLight {
     GLfloat constant;
     GLfloat linear;
     GLfloat quadratic;
+
+    int id;
 };

@@ -21,6 +21,7 @@ public:
     bool wasKeyPressed(KeyID id);
     
     glm::vec2 getMouseCoords() const;
+    glm::vec2 getMouseRel() const;
     
 private:
     bool wasKeyDown(KeyID id);
@@ -28,5 +29,6 @@ private:
     std::unordered_map<KeyID, bool> m_keyMap;
     std::unordered_map<KeyID, bool> m_previousKeyMap;
     
-    glm::vec2 m_mouseCoords = glm::vec2(0.0f, 0.0f);
+    glm::vec2 m_mouseCoords {0.0f, 0.0f};
+    glm::vec2 m_mouseRel {0.0f, 0.0f};
 };

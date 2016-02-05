@@ -2,6 +2,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <iostream>
+
 Camera::Camera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) :
 m_position(position),
 m_worldUp(up),
@@ -62,6 +64,8 @@ void Camera::processMouseMovement(GLfloat xOffset, GLfloat yOffset, GLboolean co
             m_pitch = -89.0f;
         }
     }
+
+    std::cout << "Camera mouse\n";
     
     updateCameraVectors();
 }

@@ -38,21 +38,16 @@ bool Game::init() {
 
     // Tell OpenGL to create a core context
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     // @TODO: Add settings to window creation
     m_window.create(config["screenWidth"], config["screenHeight"]);
 
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    /* SDL_SetRelativeMouseMode(SDL_TRUE); */
+
     SDL_GL_SetSwapInterval(1);
 
-    // This is for debugging
-    const GLubyte* renderer = glGetString(GL_RENDERER);
-    const GLubyte* version = glGetString(GL_VERSION);
-    std::cout << "Renderer: " << renderer << "\n";
-    std::cout << "OpenGL version supported: " << version << "\n";
-    
     glEnable(GL_DEPTH_TEST);
 
     m_scene.setGame(this);

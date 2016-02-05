@@ -16,7 +16,6 @@ public:
     Window m_window;
     
 private:
-    bool m_quit {false};
-    
     Scene m_scene;
+
 };

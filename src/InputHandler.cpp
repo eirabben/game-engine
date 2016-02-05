@@ -9,6 +9,7 @@ void InputHandler::update() {
     for (auto it : m_keyMap) {
         m_previousKeyMap[it.first] = it.second;
     }
+    m_mouseRel = glm::vec2(0.0f);
 }
 
 void InputHandler::keyPressed(KeyID id) {
@@ -21,6 +22,7 @@ void InputHandler::keyReleased(KeyID id) {
 
 void InputHandler::mouseMoved(float newX, float newY, float xRel, float yRel) {
     m_mouseCoords = glm::vec2(newX, newY);
+    m_mouseRel = glm::vec2(xRel, yRel);
 }
 
 bool InputHandler::isKeyDown(KeyID id) {
@@ -43,6 +45,10 @@ bool InputHandler::wasKeyPressed(KeyID id) {
 
 glm::vec2 InputHandler::getMouseCoords() const {
     return m_mouseCoords;
+}
+
+glm::vec2 InputHandler::getMouseRel() const {
+    return m_mouseRel;
 }
 
 bool InputHandler::wasKeyDown(KeyID id) {

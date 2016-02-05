@@ -4,7 +4,9 @@
 
 #include <iostream>
 
-class PMeshRenderer {
+#include <glm/gtc/type_ptr.hpp>
+
+class PLightRenderer {
     using Signature = ecs::Signature<CPosition, CMesh, CMaterial>;
     
 public:
