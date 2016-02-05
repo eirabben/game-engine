@@ -14,7 +14,7 @@ public:
     void linkShaders(GLuint vertexShaderID, GLuint fragmentShaderID);
     std::string loadSourceFromFile(const std::string& shaderPath);
     
-    GLint getUniformLocation(const std::string& uniformName);
+    GLint getUniformLocation(const std::string& uniformName) const;
     
     void use();
     void unuse();

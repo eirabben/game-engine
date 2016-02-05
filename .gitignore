@@ -4,3 +4,5 @@ build/*
 !build/.gitignore
 bin/*
 !bin/.gitignore
+
+Ecs/

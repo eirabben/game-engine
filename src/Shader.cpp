@@ -107,7 +107,7 @@ std::string Shader::loadSourceFromFile(const std::string& shaderPath) {
     return shaderSource;
 }
 
-GLint Shader::getUniformLocation(const std::string& uniformName) {
+GLint Shader::getUniformLocation(const std::string& uniformName) const {
     GLint location = glGetUniformLocation(m_program, uniformName.c_str());
     if (location == GL_INVALID_INDEX) {
         std::cout << "Uniform " << uniformName << " not found in shader\n";

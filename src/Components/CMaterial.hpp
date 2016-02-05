@@ -1,9 +1,8 @@
 #pragma once
 
-#include "Texture.hpp"
-#include <glm/glm.hpp>
+#include "../Texture.hpp"
 
-struct Material {
+struct CMaterial {
     Texture diffuseMap;
     Texture specularMap;
     float shininess;
