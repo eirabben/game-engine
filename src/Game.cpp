@@ -31,6 +31,10 @@ bool Game::init() {
     // Load Lua config
     sel::State config;
     config.Load("res/config.lua");
+    
+    // These must apparently be set before SDL_Init
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    SDL_GL_SetSwapInterval(1);
 
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -45,10 +49,7 @@ bool Game::init() {
 
     // @TODO: Add settings to window creation
     window.create(config["screenWidth"], config["screenHeight"]);
-    
-//    SDL_SetRelativeMouseMode(SDL_TRUE);
 
-    SDL_GL_SetSwapInterval(1);
 
     glEnable(GL_DEPTH_TEST);
 

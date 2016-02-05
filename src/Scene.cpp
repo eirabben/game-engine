@@ -134,7 +134,14 @@ void Scene::draw() {
 void Scene::handleInput(float deltaTime) {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
-        m_game->onSdlEvent(e);
+        switch (e.type) {
+            case SDL_MOUSEMOTION:
+                m_camera.processMouseMovement(e.motion.xrel, -e.motion.yrel);
+                break;
+            default:
+                m_game->onSdlEvent(e);
+                break;
+        }
     }
     
     if (m_game->inputHandler.isKeyDown(SDLK_w)) {
@@ -151,9 +158,6 @@ void Scene::handleInput(float deltaTime) {
     }
     if (m_game->inputHandler.isKeyDown(SDLK_ESCAPE)) {
         m_quit = true;
-    }
-    if (m_game->inputHandler.hasMouseMoved()) {
-        m_camera.processMouseMovement(-m_game->inputHandler.getMouseRel().x, m_game->inputHandler.getMouseRel().y);
     }
 }
 
