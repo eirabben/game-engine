@@ -65,7 +65,7 @@ void Camera::processMouseMovement(GLfloat xOffset, GLfloat yOffset, GLboolean co
         }
     }
 
-    std::cout << "Camera mouse\n";
+//    std::cout << "Camera mouse\n";
     
     updateCameraVectors();
 }

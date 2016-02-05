@@ -144,7 +144,7 @@ void Scene::handleInput(float deltaTime) {
                 break;
             case SDL_KEYDOWN:
                 m_inputHandler.keyPressed(e.key.keysym.sym);
-                std::cout << "key pressed\n";
+//                std::cout << "key pressed\n";
                 break;
             case SDL_KEYUP:
                 m_inputHandler.keyReleased(e.key.keysym.sym);
@@ -152,7 +152,7 @@ void Scene::handleInput(float deltaTime) {
             case SDL_MOUSEMOTION:
                 m_inputHandler.mouseMoved(e.motion.x, e.motion.y, e.motion.xrel, e.motion.yrel);
                 m_camera.processMouseMovement(e.motion.xrel, -e.motion.yrel);
-                std::cout << "Mouse moved\n";
+//                std::cout << "Mouse moved\n";
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 m_inputHandler.keyPressed(e.button.button);

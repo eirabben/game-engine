@@ -43,8 +43,8 @@ bool Game::init() {
 
     // @TODO: Add settings to window creation
     m_window.create(config["screenWidth"], config["screenHeight"]);
-
-    /* SDL_SetRelativeMouseMode(SDL_TRUE); */
+    
+    SDL_SetRelativeMouseMode(SDL_FALSE);
 
     SDL_GL_SetSwapInterval(1);
 
